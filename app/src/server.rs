@@ -15,6 +15,8 @@ use std::time::Duration;
 const INDEX: &str = include_str!("../../ui/index.html");
 const APP_JS: &str = include_str!("../../ui/app.js");
 const STYLE: &str = include_str!("../../ui/style.css");
+const LOGO: &[u8] = include_bytes!("../../ui/logo.png");
+const FAVICON: &[u8] = include_bytes!("../../assets/brand/aether.ico");
 
 pub const PORT: u16 = 47820;
 const MAX_BODY: usize = 1 << 20;
@@ -95,6 +97,8 @@ fn handle(mut stream: TcpStream, app: &App) -> std::io::Result<()> {
         ("GET", "/") => respond(&mut stream, "200 OK", "text/html; charset=utf-8", INDEX.as_bytes()),
         ("GET", "/app.js") => respond(&mut stream, "200 OK", "text/javascript; charset=utf-8", APP_JS.as_bytes()),
         ("GET", "/style.css") => respond(&mut stream, "200 OK", "text/css; charset=utf-8", STYLE.as_bytes()),
+        ("GET", "/logo.png") => respond(&mut stream, "200 OK", "image/png", LOGO),
+        ("GET", "/favicon.ico") => respond(&mut stream, "200 OK", "image/x-icon", FAVICON),
         ("GET", "/api/state") => respond(&mut stream, "200 OK", "application/json", &serde_json::to_vec(&app.snapshot())?),
         ("POST", "/api/cmd") => {
             // A custom header forces a CORS preflight, which this server never approves.

@@ -117,7 +117,7 @@ You'll hear nothing at this point. That's expected: audio now goes into the cabl
 Double-click `aether.exe`. Two things appear:
 
 - **The control panel window** (opens automatically).
-- **A teal tray icon** near the clock. If you don't see it, click the **^** arrow to show hidden icons. You can drag it
+- **The Aether logo** (a light-blue cone of sound waves) in the tray near the clock. If you don't see it, click the **^** arrow to show hidden icons. You can drag it
   onto the taskbar to keep it visible.
 
 ### Step 7. Check the routing

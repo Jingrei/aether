@@ -54,8 +54,8 @@ code { font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-r
   display: flex; align-items: center; gap: 20px;
   padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--surface);
 }
-.brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 650; letter-spacing: .01em; min-width: 140px; }
-.logo { width: 28px; height: 28px; }
+.brand { display: flex; align-items: center; min-width: 140px; }
+.logo { display: block; height: 26px; width: auto; user-select: none; -webkit-user-drag: none; }
 .status { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
 .status.ok .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }

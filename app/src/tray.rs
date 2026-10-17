@@ -8,7 +8,10 @@ use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use tray_icon::menu::{CheckMenuItem, Menu, MenuEvent, MenuId, MenuItem, PredefinedMenuItem, Submenu};
 use tray_icon::{Icon, MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
-use windows_sys::Win32::UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, PostQuitMessage, SetTimer, TranslateMessage, MSG};
+use windows_sys::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2};
+use windows_sys::Win32::UI::WindowsAndMessaging::{
+    DispatchMessageW, GetMessageW, GetSystemMetrics, PostQuitMessage, SetTimer, TranslateMessage, MSG, SM_CXSMICON,
+};
 
 #[derive(Clone)]
 enum Action {
@@ -21,25 +24,11 @@ enum Action {
     Quit,
 }
 
-/// Draws the tray icon: a disc with a center dot and sound-wave arcs on both sides.
+/// The logo from the exe's icon resources (see build.rs), greyed out while processing is off.
+/// Loaded at the tray's small-icon size so Windows picks the matching hand-sized image.
 fn make_icon(enabled: bool) -> Icon {
-    const N: u32 = 32;
-    let (bg, fg) = if enabled { ([20u8, 184, 166], [255u8, 255, 255]) } else { ([110u8, 110, 120], [225u8, 225, 230]) };
-    let mut rgba = Vec::with_capacity((N * N * 4) as usize);
-    let c = (N as f32 - 1.0) / 2.0;
-    for y in 0..N {
-        for x in 0..N {
-            let (dx, dy) = (x as f32 - c, y as f32 - c);
-            let r = (dx * dx + dy * dy).sqrt();
-            let side = (dy.atan2(dx.abs())).abs() < 0.85;
-            let ring = |radius: f32| (r - radius).abs() < 1.1 && side;
-            let disc = (16.0 - r).clamp(0.0, 1.0);
-            let on_fg = r < 3.6 || ring(8.0) || ring(12.5);
-            let col = if on_fg { fg } else { bg };
-            rgba.extend_from_slice(&[col[0], col[1], col[2], (disc * 255.0) as u8]);
-        }
-    }
-    Icon::from_rgba(rgba, N, N).expect("icon")
+    let size = unsafe { GetSystemMetrics(SM_CXSMICON) }.max(16) as u32;
+    Icon::from_resource(if enabled { 1 } else { 2 }, Some((size, size))).expect("icon resource")
 }
 
 fn mode_label(m: OutputMode) -> &'static str {
@@ -139,6 +128,8 @@ fn refresh(app: &App, tray: &TrayIcon, actions: &mut HashMap<MenuId, Action>) {
 
 /// Blocks until the user quits.
 pub fn run(app: Arc<App>, url: String) -> anyhow::Result<()> {
+    // Without DPI awareness Windows reports 16 px icons and stretches them, blurring the tray icon and menu.
+    unsafe { SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2) };
     let (menu, mut actions, tooltip) = build_menu(&app);
     let tray = TrayIconBuilder::new()
         .with_menu(Box::new(menu))

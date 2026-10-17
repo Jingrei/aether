@@ -1,3 +1,5 @@
+<p align="center"><img src="ui/logo.png" alt="Aether" width="280"></p>
+
 # Aether Sound
 
 System-wide spatial audio and enhancement for Windows: virtual 7.1.4 surround on headphones or speakers,
