@@ -1,0 +1,10 @@
+[package]
+name = "aether-engine"
+description = "Real-time spatial audio engine: HRTF binaural rendering, room simulation, upmixing and tone shaping"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+realfft = "3"
+serde = { version = "1", features = ["derive"] }

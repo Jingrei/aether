@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aether Sound</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" class="logo" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="var(--accent)"/><circle cx="16" cy="16" r="3.6" fill="var(--on-accent)"/><path d="M24 8.5a11 11 0 0 1 0 15M8 8.5a11 11 0 0 0 0 15M20.5 11.5a6.2 6.2 0 0 1 0 9M11.5 11.5a6.2 6.2 0 0 0 0 9" stroke="var(--on-accent)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <span>Aether</span>
+    </div>
+    <div class="seg" id="mode" role="radiogroup" aria-label="Output mode">
+      <button data-v="headphones">Headphones</button>
+      <button data-v="speakers">Speakers</button>
+      <button data-v="stereo">Stereo</button>
+    </div>
+    <div class="status" id="status"><span class="dot"></span><span id="status-text">Connecting…</span></div>
+    <label class="power" title="Turn processing on or off">
+      <input type="checkbox" id="enabled">
+      <span class="track"><span class="thumb"></span></span>
+      <span id="enabled-label">On</span>
+    </label>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <main class="layout">
+    <aside class="card profiles">
+      <div class="card-head">
+        <h2>Profiles</h2>
+        <div class="head-actions">
+          <button class="icon-btn" id="import-profile" title="Import profile (.json)">⇪</button>
+          <button class="icon-btn" id="new-profile" title="New profile from current">＋</button>
+        </div>
+      </div>
+      <div id="profile-list" class="profile-list"></div>
+      <input type="file" id="profile-file" accept=".json,application/json" hidden>
+    </aside>
+
+    <section class="center">
+      <div class="card stage-card">
+        <div class="card-head">
+          <h2>Spatial sound editor</h2>
+          <label class="chip-toggle"><input type="checkbox" id="test-enabled"><span>Play test sound</span></label>
+        </div>
+        <div class="stage-wrap">
+          <canvas id="stage" aria-label="Top view of the virtual room. Drag the test sound to move it."></canvas>
+          <div class="height-ctl">
+            <input type="range" id="test-height" min="0" max="90" step="1" orient="vertical" aria-label="Test sound height">
+            <span>Height <b id="test-height-val">0°</b></span>
+          </div>
+        </div>
+        <p class="hint" id="stage-hint">Drag the glowing ball around your head to hear where sounds come from. Use the slider to raise it.</p>
+      </div>
+
+      <div class="card viz-card">
+        <div class="card-head">
+          <h2>Output</h2>
+          <span class="muted" id="load">DSP 0%</span>
+        </div>
+        <div class="viz">
+          <canvas id="spectrum"></canvas>
+          <div class="meters">
+            <div class="meter"><span>IN</span><div class="bars"><i id="m-in-l"></i><i id="m-in-r"></i></div></div>
+            <div class="meter"><span>OUT</span><div class="bars"><i id="m-out-l"></i><i id="m-out-r"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card panel">
+      <nav class="tabs" role="tablist">
+        <button data-tab="sound" class="active">Sound</button>
+        <button data-tab="eq">EQ</button>
+        <button data-tab="headphones">Headphones</button>
+        <button data-tab="settings">Settings</button>
+      </nav>
+
+      <div class="tab" id="tab-sound">
+        <div class="profile-title">
+          <input id="profile-name" aria-label="Profile name" maxlength="48">
+          <span class="badge" id="profile-badge"></span>
+        </div>
+        <p class="muted small" id="profile-desc"></p>
+        <div id="sound-controls"></div>
+        <div class="row-actions">
+          <button id="dup-profile">Duplicate</button>
+          <button id="export-profile">Export</button>
+          <button id="delete-profile" class="danger">Delete</button>
+        </div>
+      </div>
+
+      <div class="tab" id="tab-eq" hidden>
+        <canvas id="eq-curve" class="curve"></canvas>
+        <div class="eq-bands" id="eq-bands"></div>
+        <div class="row-actions"><button id="eq-reset">Flat</button></div>
+      </div>
+
+      <div class="tab" id="tab-headphones" hidden>
+        <p class="muted small">Corrects your headphones' frequency response before spatial rendering. Applied in Headphones and Stereo modes.</p>
+        <canvas id="tuning-curve" class="curve"></canvas>
+        <div id="tuning-list" class="radio-list"></div>
+        <details class="import">
+          <summary>Import an AutoEQ / Equalizer APO preset</summary>
+          <p class="muted small">Paste the contents of a <code>ParametricEQ.txt</code> file. AutoEQ publishes free measurements for thousands of headphone models.</p>
+          <input id="tuning-name" placeholder="Headphone name">
+          <textarea id="tuning-text" rows="6" placeholder="Preamp: -6.2 dB&#10;Filter 1: ON LSC Fc 105 Hz Gain 5.5 dB Q 0.70&#10;Filter 2: ON PK Fc 3200 Hz Gain -3.1 dB Q 2.0"></textarea>
+          <div class="row-actions"><input type="file" id="tuning-file" accept=".txt" hidden><button id="tuning-file-btn">Open file…</button><button id="tuning-import" class="primary">Import</button></div>
+        </details>
+      </div>
+
+      <div class="tab" id="tab-settings" hidden>
+        <div class="field">
+          <label>Quality</label>
+          <div class="seg small" id="quality">
+            <button data-v="best">Best sound</button>
+            <button data-v="balanced">Balanced</button>
+            <button data-v="battery">Battery</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="input-dev">Source (what to process)</label>
+          <select id="input-dev"></select>
+        </div>
+        <div class="field">
+          <label for="output-dev">Play on</label>
+          <select id="output-dev"></select>
+        </div>
+        <div class="row-actions"><button id="refresh-dev">Refresh devices</button></div>
+        <div class="field">
+          <label>Output gain <b id="gain-val"></b></label>
+          <input type="range" id="output-gain" min="-24" max="12" step="0.5">
+        </div>
+        <label class="check"><input type="checkbox" id="autostart"> Start with Windows (in the tray)</label>
+        <details class="guide" id="guide">
+          <summary>How to process all system audio</summary>
+          <ol>
+            <li>Install a virtual audio cable (for example the free <b>VB-Audio Virtual Cable</b>).</li>
+            <li>In Windows Sound settings, set <b>CABLE Input</b> as the default output device.</li>
+            <li>Leave Source and Play on set to <i>Automatic</i>. Aether captures the cable and plays the processed sound on your real headphones or speakers.</li>
+            <li>For true surround from games and movies, set the cable to <b>7.1</b> in the Windows Sound control panel (Configure speakers). Aether renders every channel in its own virtual position.</li>
+          </ol>
+        </details>
+        <div class="row-actions"><button id="quit" class="danger">Quit Aether</button></div>
+      </div>
+    </aside>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

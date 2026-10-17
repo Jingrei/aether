@@ -1,0 +1,19 @@
+﻿[package]
+name = "aether"
+description = "Aether Sound: system-wide spatial audio and enhancement for Windows"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+aether-engine = { path = "../engine" }
+anyhow = "1"
+cpal = "0.15"
+dirs = "5"
+hound = "3"
+realfft = "3"
+rtrb = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tray-icon = "0.19"
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_System_Console"] }
